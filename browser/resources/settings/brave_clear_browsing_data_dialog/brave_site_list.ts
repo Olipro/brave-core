@@ -15,9 +15,9 @@ import 'chrome://resources/cr_elements/cr_shared_vars.css.js';
 import 'chrome://resources/cr_elements/cr_tooltip/cr_tooltip.js';
 import 'chrome://resources/polymer/v3_0/iron-list/iron-list.js';
 import '../settings_shared.css.js';
-import './add_site_dialog.js';
-import './edit_exception_dialog.js';
-import './site_list_entry.js';
+import '../site_settings/add_site_dialog.js';
+import '../site_settings/edit_exception_dialog.js';
+import '../site_settings/site_list_entry.js';
 
 import type {CrTooltipElement} from 'chrome://resources/cr_elements/cr_tooltip/cr_tooltip.js';
 import {I18nMixin} from 'chrome://resources/cr_elements/i18n_mixin.js';
@@ -31,11 +31,11 @@ import {PolymerElement} from 'chrome://resources/polymer/v3_0/polymer/polymer_bu
 
 import {TooltipMixin} from '../tooltip_mixin.js';
 
-import {ContentSetting, ContentSettingsTypes, CookiesExceptionType, INVALID_CATEGORY_SUBTYPE, SITE_EXCEPTION_WILDCARD} from './constants.js';
+import {ContentSetting, ContentSettingsTypes, CookiesExceptionType, INVALID_CATEGORY_SUBTYPE, SITE_EXCEPTION_WILDCARD} from '../site_settings/constants.js';
 import {getTemplate} from './brave_site_list.html.js';
-import {SiteSettingsMixin} from './site_settings_mixin.js';
-import type {RawSiteException, SiteException, SiteSettingsPrefsBrowserProxy} from './site_settings_prefs_browser_proxy.js';
-import {SiteSettingsPrefsBrowserProxyImpl} from './site_settings_prefs_browser_proxy.js';
+import {SiteSettingsMixin} from '../site_settings/site_settings_mixin.js';
+import type {RawSiteException, SiteException, SiteSettingsPrefsBrowserProxy} from '../site_settings/site_settings_prefs_browser_proxy.js';
+import {SiteSettingsPrefsBrowserProxyImpl} from '../site_settings/site_settings_prefs_browser_proxy.js';
 import {BraveClearBrowsingDataDialogBrowserProxyImpl} from './brave_clear_browsing_data_dialog_proxy.js';
 
 export interface SiteListElement {
@@ -158,7 +158,10 @@ export class SiteListElement extends SiteListElementBase {
       listBlurred_: Boolean,
       tooltipText_: String,
       searchFilter: String,
-      isForBraveDeletionExemptSites: Boolean,
+      isForBraveDeletionExemptSites: {
+        type: Boolean,
+        value: true,
+      },
     };
   }
 
@@ -413,7 +416,8 @@ export class SiteListElement extends SiteListElementBase {
     // TODO: clean this up before merge!
     if (this.isForBraveDeletionExemptSites) {
       BraveClearBrowsingDataDialogBrowserProxyImpl.getInstance().getDeletionExemptDomains().then(domains => {
-        this.updateList('sites', x => x, domains);
+        this.processExceptions_(domains);
+        this.closeActionMenu_();
       });
       return;
     }
@@ -594,7 +598,7 @@ export class SiteListElement extends SiteListElementBase {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'site-list': SiteListElement;
+    'brave-site-list': SiteListElement;
   }
 }
 

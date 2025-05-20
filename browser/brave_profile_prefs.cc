@@ -492,6 +492,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
 #if BUILDFLAG(ENABLE_WEB_DISCOVERY_NATIVE)
   web_discovery::WebDiscoveryService::RegisterProfilePrefs(registry);
 #endif
+  registry->RegisterListPref(kDomainsExemptFromExitDeletion, {});
 }
 
 }  // namespace brave

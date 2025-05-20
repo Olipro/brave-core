@@ -2,7 +2,7 @@
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // You can obtain one at https://mozilla.org/MPL/2.0/.
-
+#include "chrome/browser/ui/webui/settings/site_settings_helper.h"
 #include "brave/browser/ui/webui/settings/brave_clear_browsing_data_handler.h"
 
 #include "base/functional/bind.h"
@@ -10,6 +10,7 @@
 #include "brave/browser/brave_ads/ads_service_factory.h"
 #include "brave/components/brave_ads/core/browser/service/ads_service.h"
 #include "brave/components/brave_rewards/core/pref_names.h"
+#include "brave/components/constants/pref_names.h"
 #include "chrome/browser/profiles/profile.h"
 #include "components/prefs/pref_service.h"
 
@@ -82,15 +83,29 @@ void BraveClearBrowsingDataHandler::OnRewardsEnabledPreferenceChanged() {
 }
 
 void BraveClearBrowsingDataHandler::HandleGetDeletionExemptDomains(const base::Value::List& args) {
-  AllowJavascript();
+  if (!IsJavascriptAllowed()) {
+    return;
+  }
 
   const base::Value& callback_id = args[0];
 
-  base::Value::List domains;
-  domains.Append("example.com");
-  domains.Append("google.com");
+  auto& exemptDomains = profile_->GetPrefs()->GetList(kDomainsExemptFromExitDeletion);
 
-  ResolveJavascriptCallback(callback_id, domains);
+  ResolveJavascriptCallback(callback_id, exemptDomains);
+}
+
+//I have assumed here that since no promise prototype is involved, the list should just be domain strings.
+//This is mostly just exposition since we don't have a working UI and we don't seem to set anything else in this TU
+void BraveClearBrowsingDataHandler::HandleSetDeletionExemptDomains(const base::Value::List& args) {
+  if (!IsJavascriptAllowed()) {
+    return;
+  }
+
+  
+  for (auto& arg : args)
+    arg.GetString(); // is this necessary? the intent is to cause a DCHECK failure if the JS side passes us any non-string element.
+
+  profile_->GetPrefs()->SetList(kDomainsExemptFromExitDeletion, args.Clone());
 }
 
 }  // namespace settings

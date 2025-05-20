@@ -115,6 +115,9 @@ inline constexpr char kDontAskForCrashReporting[] =
 inline constexpr char kEnableMediaRouterOnRestart[] =
     "brave.enable_media_router_on_restart";
 
+inline constexpr char kDomainsExemptFromExitDeletion[] =
+    "brave.domains_exempt_from_deletion_upon_exit";
+
 #if BUILDFLAG(IS_ANDROID)
 inline constexpr char kDesktopModeEnabled[] = "brave.desktop_mode_enabled";
 inline constexpr char kPlayYTVideoInBrowserEnabled[] =
