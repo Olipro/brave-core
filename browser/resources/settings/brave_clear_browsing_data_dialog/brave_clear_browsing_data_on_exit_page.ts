@@ -10,6 +10,7 @@ import {loadTimeData} from '../i18n_setup.js'
 import '../settings_shared.css.js'
 import '../settings_vars.css.js'
 import '../controls/settings_checkbox.js'
+import './brave_site_list.js'
 import {getTemplate} from './brave_clear_browsing_data_on_exit_page.html.js'
 
 export interface SettingsBraveClearBrowsingDataOnExitPageElement {

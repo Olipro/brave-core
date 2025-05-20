@@ -32,6 +32,8 @@ class BraveClearBrowsingDataHandler : public ClearBrowsingDataHandler {
 
   void OnRewardsEnabledPreferenceChanged();
 
+  void HandleGetDeletionExemptDomains(const base::Value::List& args);
+
   raw_ptr<Profile> profile_ = nullptr;
 
   PrefChangeRegistrar pref_change_registrar_;

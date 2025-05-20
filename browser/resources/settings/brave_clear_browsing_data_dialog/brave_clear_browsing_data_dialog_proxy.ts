@@ -8,6 +8,7 @@
  export interface BraveClearBrowsingDataDialogBrowserProxy {
   getBraveRewardsEnabled: () => Promise<boolean>
   clearBraveAdsData: () => void
+  getDeletionExemptDomains: () => Promise<string>
  }
 
  export class BraveClearBrowsingDataDialogBrowserProxyImpl
@@ -19,6 +20,10 @@
 
   clearBraveAdsData() {
     chrome.send('clearBraveAdsData')
+  }
+
+  getDeletionExemptDomains() {
+    return sendWithPromise('getDeletionExemptDomains')
   }
 
   static getInstance(): BraveClearBrowsingDataDialogBrowserProxyImpl {

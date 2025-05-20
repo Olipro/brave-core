@@ -44,6 +44,11 @@ void BraveClearBrowsingDataHandler::RegisterMessages() {
       base::BindRepeating(
           &BraveClearBrowsingDataHandler::HandleClearBraveAdsData,
           base::Unretained(this)));
+  web_ui()->RegisterMessageCallback(
+      "getDeletionExemptDomains",
+      base::BindRepeating(
+        &BraveClearBrowsingDataHandler::HandleGetDeletionExemptDomains,
+        base::Unretained(this)));
 }
 
 void BraveClearBrowsingDataHandler::HandleGetBraveRewardsEnabled(
@@ -74,6 +79,18 @@ void BraveClearBrowsingDataHandler::OnRewardsEnabledPreferenceChanged() {
       profile_->GetPrefs()->GetBoolean(brave_rewards::prefs::kEnabled);
   FireWebUIListener("brave-rewards-enabled-changed",
                     base::Value(rewards_enabled));
+}
+
+void BraveClearBrowsingDataHandler::HandleGetDeletionExemptDomains(const base::Value::List& args) {
+  AllowJavascript();
+
+  const base::Value& callback_id = args[0];
+
+  base::Value::List domains;
+  domains.Append("example.com");
+  domains.Append("google.com");
+
+  ResolveJavascriptCallback(callback_id, domains);
 }
 
 }  // namespace settings

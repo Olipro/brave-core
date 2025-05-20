@@ -21,6 +21,16 @@
                       hidden="[[isChildAccount_]]"
                       no-set-pref>
   </settings-checkbox>
+  <brave-site-list id="clearDataExemptDomains"
+              category="[[cookiesContentSettingType_]]"
+              category-subtype="[[contentSettingEnum_.ALLOW]]"
+              category-header="Preserved sites"
+              show-add-site-button="true"
+              search-filter="[[searchTerm]]"
+              show-allow-action="true"
+              show-block-action="false"
+              is-for-brave-deletion-exempt-sites="true">
+  </brave-site-list>
   <settings-checkbox id="cookiesCheckboxOnExit"
                       class="cookies-checkbox"
                       pref="{{prefs.browser.clear_data.cookies_on_exit}}"
