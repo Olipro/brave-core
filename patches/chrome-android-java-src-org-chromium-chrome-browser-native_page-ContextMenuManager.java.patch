@@ -1,0 +1,171 @@
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/native_page/ContextMenuManager.java b/chrome/android/java/src/org/chromium/chrome/browser/native_page/ContextMenuManager.java
+index d154f755d6123..d2c4a2f37eeef 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/native_page/ContextMenuManager.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/native_page/ContextMenuManager.java
+@@ -24,8 +24,10 @@ import org.chromium.ui.accessibility.AccessibilityState;
+ import org.chromium.ui.listmenu.ListMenu;
+ import org.chromium.ui.listmenu.ListMenuDelegate;
+ import org.chromium.ui.listmenu.ListMenuHost;
++import org.chromium.ui.listmenu.ListItemType;
+ import org.chromium.ui.listmenu.ListMenuItemProperties;
+ import org.chromium.ui.modelutil.MVCListAdapter;
++import org.chromium.ui.modelutil.PropertyModel;
+ import org.chromium.ui.mojom.WindowOpenDisposition;
+ import org.chromium.ui.widget.RectProvider;
+ import org.chromium.ui.widget.ViewRectProvider;
+@@ -62,6 +64,10 @@ public class ContextMenuManager {
+         ContextMenuItemId.MOVE_UP,
+         ContextMenuItemId.MOVE_DOWN,
+         ContextMenuItemId.HIDE_ALL,
++        ContextMenuItemId.BRAVE_ADD_SITE,
++        ContextMenuItemId.BRAVE_SHOW_FREQUENT,
++        ContextMenuItemId.BRAVE_SHOW_SHORTCUTS,
++        ContextMenuItemId.BRAVE_HIDE_WIDGET,
+     })
+     @Retention(RetentionPolicy.SOURCE)
+     public @interface ContextMenuItemId {
+@@ -87,6 +93,13 @@ public class ContextMenuManager {
+         int MOVE_DOWN = 16;
+         int HIDE_ALL = 17;
+ 
++        // Brave-specific NTP widget menu items. Handled separately from the main
++        // 0..NUM_ENTRIES-1 loop, so their IDs are >= NUM_ENTRIES.
++        int BRAVE_ADD_SITE = 18;
++        int BRAVE_SHOW_FREQUENT = 19;
++        int BRAVE_SHOW_SHORTCUTS = 20;
++        int BRAVE_HIDE_WIDGET = 21;
++
+         int NUM_ENTRIES = 18;
+     }
+ 
+@@ -222,6 +235,40 @@ public class ContextMenuManager {
+         public void hideAllItems() {}
+     }
+ 
++    /**
++     * Brave extension of {@link Delegate} for NTP top-sites widget management. Implementors appear
++     * in the long-press context menu with a divider separating them from the standard tile actions.
++     */
++    public interface BraveNtpDelegate extends Delegate {
++        /**
++         * Returns whether the given Brave-specific menu item should be shown.
++         *
++         * @param menuItemId One of {@link ContextMenuItemId#BRAVE_ADD_SITE},
++         *     {@link ContextMenuItemId#BRAVE_SHOW_FREQUENT},
++         *     {@link ContextMenuItemId#BRAVE_SHOW_SHORTCUTS},
++         *     {@link ContextMenuItemId#BRAVE_HIDE_WIDGET}.
++         */
++        boolean isBraveItemSupported(int menuItemId);
++
++        /** Adds a new custom site shortcut to the NTP top-sites widget. */
++        void braveAddSite();
++
++        /** Switches the NTP top-sites widget to "Show frequently visited" mode. */
++        void braveShowFrequent();
++
++        /** Switches the NTP top-sites widget to "Show shortcuts" mode. */
++        void braveShowShortcuts();
++
++        /** Hides the NTP top-sites widget. */
++        void braveHideWidget();
++
++        /**
++         * Returns the current top-sites display mode (0 = shortcuts, 1 = frequent), used to show a
++         * checkmark next to the active mode option.
++         */
++        int getBraveTopSitesDisplayMode();
++    }
++
+     /**
+      * @param navigationDelegate The {@link NativePageNavigationDelegate} for handling navigation
+      *     events.
+@@ -251,6 +298,17 @@ public class ContextMenuManager {
+      */
+     public boolean showListContextMenu(View associatedView, Delegate delegate) {
+         MVCListAdapter.ModelList menuModel = new MVCListAdapter.ModelList();
++
++        // Brave: "Add site" appears at the top, before the standard Chromium items.
++        if (delegate instanceof BraveNtpDelegate braveDelegate
++                && braveDelegate.isBraveItemSupported(ContextMenuItemId.BRAVE_ADD_SITE)) {
++            menuModel.add(
++                    new ListItemBuilder()
++                            .withTitleRes(R.string.brave_ntp_add_site)
++                            .withMenuId(ContextMenuItemId.BRAVE_ADD_SITE)
++                            .build());
++        }
++
+         for (@ContextMenuItemId int itemId = 0; itemId < ContextMenuItemId.NUM_ENTRIES; itemId++) {
+             if (!shouldShowItem(itemId, delegate)) continue;
+ 
+@@ -258,6 +316,44 @@ public class ContextMenuManager {
+             menuModel.add(new ListItemBuilder().withTitleRes(titleId).withMenuId(itemId).build());
+         }
+ 
++        // Brave: NTP widget control options appear below a divider at the bottom of the menu.
++        if (delegate instanceof BraveNtpDelegate braveDelegate) {
++            int currentMode = braveDelegate.getBraveTopSitesDisplayMode();
++            int[] widgetItemIds = {
++                ContextMenuItemId.BRAVE_SHOW_FREQUENT,
++                ContextMenuItemId.BRAVE_SHOW_SHORTCUTS,
++                ContextMenuItemId.BRAVE_HIDE_WIDGET
++            };
++            int[] widgetItemRes = {
++                R.string.brave_ntp_show_frequently_visited,
++                R.string.brave_ntp_show_shortcuts,
++                R.string.brave_ntp_hide_widget
++            };
++            MVCListAdapter.ModelList braveWidgetItems = new MVCListAdapter.ModelList();
++            for (int i = 0; i < widgetItemIds.length; i++) {
++                if (!braveDelegate.isBraveItemSupported(widgetItemIds[i])) continue;
++                boolean isSelected =
++                        (widgetItemIds[i] == ContextMenuItemId.BRAVE_SHOW_FREQUENT
++                                        && currentMode == 1)
++                                || (widgetItemIds[i] == ContextMenuItemId.BRAVE_SHOW_SHORTCUTS
++                                        && currentMode == 0);
++                ListItemBuilder builder =
++                        new ListItemBuilder()
++                                .withTitleRes(widgetItemRes[i])
++                                .withMenuId(widgetItemIds[i]);
++                if (isSelected) {
++                    builder.withEndIconRes(R.drawable.ic_checkmark_24dp);
++                }
++                braveWidgetItems.add(builder.build());
++            }
++            if (!braveWidgetItems.isEmpty()) {
++                menuModel.add(new MVCListAdapter.ListItem(ListItemType.DIVIDER, new PropertyModel()));
++                for (int i = 0; i < braveWidgetItems.size(); i++) {
++                    menuModel.add(braveWidgetItems.get(i));
++                }
++            }
++        }
++
+         if (menuModel.isEmpty()) {
+             return false;
+         }
+@@ -507,6 +603,26 @@ public class ContextMenuManager {
+                 delegate.hideAllItems();
+                 RecordUserAction.record(mUserActionPrefix + ".ContextMenu.HideAllItems");
+                 return true;
++            case ContextMenuItemId.BRAVE_ADD_SITE:
++                if (delegate instanceof BraveNtpDelegate) {
++                    ((BraveNtpDelegate) delegate).braveAddSite();
++                }
++                return true;
++            case ContextMenuItemId.BRAVE_SHOW_FREQUENT:
++                if (delegate instanceof BraveNtpDelegate) {
++                    ((BraveNtpDelegate) delegate).braveShowFrequent();
++                }
++                return true;
++            case ContextMenuItemId.BRAVE_SHOW_SHORTCUTS:
++                if (delegate instanceof BraveNtpDelegate) {
++                    ((BraveNtpDelegate) delegate).braveShowShortcuts();
++                }
++                return true;
++            case ContextMenuItemId.BRAVE_HIDE_WIDGET:
++                if (delegate instanceof BraveNtpDelegate) {
++                    ((BraveNtpDelegate) delegate).braveHideWidget();
++                }
++                return true;
+             default:
+                 return false;
+         }
