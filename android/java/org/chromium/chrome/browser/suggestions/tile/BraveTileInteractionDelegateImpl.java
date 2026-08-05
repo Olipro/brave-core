@@ -8,9 +8,9 @@ package org.chromium.chrome.browser.suggestions.tile;
 import android.view.View;
 
 import org.chromium.build.annotations.NullMarked;
+import org.chromium.chrome.R;
+import org.chromium.chrome.browser.native_page.BraveNtpDelegate;
 import org.chromium.chrome.browser.native_page.ContextMenuManager;
-import org.chromium.chrome.browser.native_page.ContextMenuManager.BraveNtpDelegate;
-import org.chromium.chrome.browser.native_page.ContextMenuManager.ContextMenuItemId;
 import org.chromium.chrome.browser.ntp.NtpUtil;
 
 /**
@@ -44,16 +44,10 @@ class BraveTileInteractionDelegateImpl extends TileInteractionDelegateImpl
 
     @Override
     public boolean isBraveItemSupported(int menuItemId) {
-        switch (menuItemId) {
-            case ContextMenuItemId.BRAVE_ADD_SITE:
-                return true;
-            case ContextMenuItemId.BRAVE_SHOW_FREQUENT:
-            case ContextMenuItemId.BRAVE_SHOW_SHORTCUTS:
-            case ContextMenuItemId.BRAVE_HIDE_WIDGET:
-                return true;
-            default:
-                return false;
-        }
+        return menuItemId == BRAVE_ADD_SITE
+                || menuItemId == BRAVE_SHOW_FREQUENT
+                || menuItemId == BRAVE_SHOW_SHORTCUTS
+                || menuItemId == BRAVE_HIDE_WIDGET;
     }
 
     @Override
@@ -79,5 +73,10 @@ class BraveTileInteractionDelegateImpl extends TileInteractionDelegateImpl
     @Override
     public int getBraveTopSitesDisplayMode() {
         return NtpUtil.getTopSitesDisplayMode();
+    }
+
+    @Override
+    public int getSelectedModeEndIconRes() {
+        return R.drawable.brave_ntp_check_selected_circle;
     }
 }

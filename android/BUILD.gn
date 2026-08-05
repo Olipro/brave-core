@@ -216,6 +216,7 @@ android_resources("java_resources") {
     "java/brave-res/drawable/brave_news_settings_publisher_bg.xml",
     "java/brave-res/drawable/brave_news_settings_search_bg.xml",
     "java/brave-res/drawable/brave_news_settings_unfollow_bg.xml",
+    "java/brave-res/drawable/brave_ntp_check_selected_circle.xml",
     "java/brave-res/drawable/brave_notification_permission_rationale_dialog_header.xml",
     "java/brave-res/drawable/brave_privacy_tabs_unlock_image.xml",
     "java/brave-res/drawable/brave_rating_emoji_bg.xml",
