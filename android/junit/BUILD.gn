@@ -166,6 +166,7 @@ if (is_android) {
     resources_package = "org.chromium.chrome.browser.ntp"
     sources = [
       "src/org/chromium/chrome/browser/ntp/BraveNewTabPageUtilUnitTest.java",
+      "src/org/chromium/chrome/browser/ntp/BraveNtpTopSitesModeUnitTest.java",
     ]
 
     deps = [
