@@ -182,6 +182,17 @@ if (is_android) {
     deps = [ "//chrome/android/junit:chrome_junit_tests_helper" ]
   }
 
+  robolectric_library(
+      "brave_junit_tests_org.chromium.chrome.browser.suggestions.mostvisited") {
+    sources = [
+      "src/org/chromium/chrome/browser/suggestions/mostvisited/BraveMostVisitedSitesTest.java",
+    ]
+    deps = [
+      "//brave/browser/ntp_customization:java",
+      "//chrome/android/junit:chrome_junit_tests_helper",
+    ]
+  }
+
   robolectric_library("brave_junit_tests_org.chromium.chrome.browser.tasks") {
     resources_package = "org.chromium.chrome"
     sources = [ "src/org/chromium/chrome/browser/tasks/BraveReturnToChromeUtilUnitTest.java" ]

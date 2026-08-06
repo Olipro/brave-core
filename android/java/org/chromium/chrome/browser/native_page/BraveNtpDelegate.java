@@ -15,10 +15,9 @@ import org.chromium.build.annotations.NullMarked;
  */
 @NullMarked
 public interface BraveNtpDelegate extends ContextMenuManager.Delegate {
-    // Menu item IDs for the Brave-specific NTP entries. These live here rather than in the
-    // ContextMenuManager patch so that Brave files can reference them without depending on the
-    // patch being applied first. Values must be >= ContextMenuItemId.NUM_ENTRIES (18) so they
-    // don't collide with any current or future Chromium item.
+    // Menu item IDs for the Brave-specific NTP entries. Values must be
+    // >= ContextMenuItemId.NUM_ENTRIES (18) so they don't collide with any current or future
+    // Chromium item.
     int BRAVE_ADD_SITE = 18;
     int BRAVE_SHOW_FREQUENT = 19;
     int BRAVE_SHOW_SHORTCUTS = 20;

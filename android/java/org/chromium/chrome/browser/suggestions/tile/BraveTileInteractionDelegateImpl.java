@@ -16,7 +16,8 @@ import org.chromium.chrome.browser.ntp.NtpUtil;
 /**
  * Brave extension of {@link TileInteractionDelegateImpl} that also implements
  * {@link BraveNtpDelegate}, adding "Add site", "Show frequently visited", "Show shortcuts",
- * and "Hide widget" items to the tile long-press context menu.
+ * and "Hide widget" items to the tile long-press context menu. Instantiated in place of the
+ * upstream class via a bytecode redirect (see {@code BraveTileInteractionDelegateImplClassAdapter}).
  */
 @NullMarked
 class BraveTileInteractionDelegateImpl extends TileInteractionDelegateImpl

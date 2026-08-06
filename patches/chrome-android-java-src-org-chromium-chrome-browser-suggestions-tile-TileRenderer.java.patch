@@ -1,0 +1,16 @@
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/suggestions/tile/TileRenderer.java b/chrome/android/java/src/org/chromium/chrome/browser/suggestions/tile/TileRenderer.java
+index 1732e8d6baebd..a58e6eb5202d5 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/suggestions/tile/TileRenderer.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/suggestions/tile/TileRenderer.java
+@@ -378,6 +378,11 @@ public class TileRenderer {
+         tileView.setOnKeyListener(
+                 (View view, int keyCode, KeyEvent event) ->
+                         TileUtils.isCustomTileSwapKeyCombo(keyCode, event));
++        tileView.setOnLongClickListener(
++                (View v) -> {
++                    org.chromium.chrome.browser.ntp.BraveNtpWidgetMenu.show(mContext, v);
++                    return true;
++                });
+         return tileView;
+     }
+ 
